@@ -1,17 +1,17 @@
-# print min element but larger than every even element
+# print largest even element but smaller than every odd element
 .data
 	A: .space 100
 	Aend: .word 
 	Message1: .asciiz "Enter array size: "
 	Message2: .asciiz "Enter the element: " 
-	res: .asciiz "Found satisfied odd: "
-	noRes: .asciiz "No odd element found."
+	res: .asciiz "Found satisfied even: "
+	noRes: .asciiz "No even element found."
 	ms: .asciiz " "
 	line: .asciiz "\n"
 .text
 main: 	
-	li $s0, -999999 # result - smallest odd even
-	li $s1, 999999 # biggest even number
+	li $s0, -999999 # result - largest even
+	li $s1, 999999 # smallest odd
 	la $a3, A # address of A
  	j insert
  	
@@ -46,45 +46,45 @@ countInit:
 	move $s5, $zero # set counter for # of elems printed
 	move $s6, $zero # set offset from Array
 
-loopFoundMinEven: # find the min Even element
+loopFoundMinOdd: # find the min odd element
 	bge $s5, $s4, resetInit
 	lw $s7, A($s6) # A[i] 
-	rem $t2, $s7, 2 # check even
-	beqz $t2, checkMinEven
+	rem $t2, $s7, 2 # check odd
+	bnez $t2, checkMinOdd
 	addi $s5, $s5, 1
 	addi $s6, $s6, 4
-	j loopFoundMinEven
-	checkMinEven:
-		blt $s7, $s1, updateMinEven
+	j loopFoundMinOdd
+	checkMinOdd:
+		blt $s7, $s1, updateMinOdd
 		addi $s5, $s5, 1
 		addi $s6, $s6, 4
-		j loopFoundMinEven
-		updateMinEven:
-			move $s1, $s7 # $s1 is min even value
+		j loopFoundMinOdd
+		updateMinOdd:
+			move $s1, $s7 # $s1 is min odd value
 			addi $s5, $s5, 1
 			addi $s6, $s6, 4
-			j loopFoundMinEven	 
+			j loopFoundMinOdd	 
 
 resetInit: # reset the index and address for further work
 	li $s5, 0 # set counter for # of elems printed
 	li $s6, 0 # set offset from Array
-	li $t8, 0 # count Even element
-checkEven:
+	li $t8, 0 # count odd element
+checkOdd:
 	bge $s5, $s4, doneCheck
 	lw $s7, A($s6) # A[i] 
-	rem $t2, $s7, 2 # check even
-	beqz $t2, countEven
+	rem $t2, $s7, 2 # check odd
+	bnez $t2, countOdd
 	addi $s5, $s5, 1
 	addi $s6, $s6, 4
-	j checkEven
-	countEven:
+	j checkOdd
+	countOdd:
 		addi $t8, $t8, 1
 		addi $s5, $s5, 1
 		addi $s6, $s6, 4
-		j checkEven
+		j checkOdd
 		
 doneCheck:
-checkfullEven:
+checkfullOdd:
 	beq $t8, $s4, printInvalid
 	j resetInitforCount
 	printInvalid:
@@ -97,29 +97,29 @@ resetInitforCount: # reset the index and address for further work
 	li $s5, 0 # set counter for # of elems printed
 	li $s6, 0 # set offset from Array
 
-loopMaxOdd:
+loopMaxEven:
 	bge $s5, $s4, printResult
 	lw $s7, A($s6) # A[i] 
 	rem $t2, $s7, 2
-	bnez $t2, checklessOdd
+	beqz $t2, checklessEven
 	addi $s5, $s5, 1
 	addi $s6, $s6, 4
-	j loopMaxOdd
-	checklessOdd:
-		blt $s7, $s1, checkMaxOdd # check if the odd element < smallest even element
+	j loopMaxEven
+	checklessEven:
+		blt $s7, $s1, checkMaxEven # check if the even element < smallest odd element
 		addi $s5, $s5, 1
 		addi $s6, $s6, 4
-		j loopMaxOdd
-		checkMaxOdd:
-			bgt $s7, $s0, updateMaxOdd # find the largest odd element < smallest even element
+		j loopMaxEven
+		checkMaxEven:
+			bgt $s7, $s0, updateMaxEven # find the largest even element < smallest odd element
 			addi $s5, $s5, 1
 			addi $s6, $s6, 4
-			j loopMaxOdd
-			updateMaxOdd: # update result
+			j loopMaxEven
+			updateMaxEven: # update result
 				move $s0, $s7
 				addi $s5, $s5, 1
 				addi $s6, $s6, 4
-				j loopMaxOdd
+				j loopMaxEven
 
 printResult:
 	li $v0, 4
