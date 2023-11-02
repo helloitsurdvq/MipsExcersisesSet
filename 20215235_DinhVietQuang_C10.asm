@@ -1,3 +1,4 @@
+# check the similarity of 2 strings
 .data
 	Str1: .space 256
 	Str2: .space 256
@@ -23,7 +24,7 @@ main:
 	
 	li $v0, 8
 	la $a0, Str1 # input string
-	li $a1, 51
+	li $a1, 255
 	syscall
 	
 	li $v0, 4 # print string
@@ -32,7 +33,7 @@ main:
 	
 	li $v0, 8
 	la $a0, Str2 # input string
-	li $a1, 51
+	li $a1, 255
 	syscall
 loop:		
 	beq $s0, $s1, same # exit if i == n
