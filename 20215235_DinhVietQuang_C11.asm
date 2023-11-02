@@ -1,43 +1,76 @@
 # print the reversed input string
 .data
-	string: .space 100
+	input:	.space	256
+	output:	.space	256
 	message1: .asciiz "Enter string: "
 	message2: .asciiz "Result: " 
-	res: .asciiz ".....: "
 	ms: .asciiz " "
 	line: .asciiz "\n"
+
 .text
-init: 
-	la $a0, string # $a0 = address(string[0])
-	li $t0, 0 # $t0 = i = 0
-	li $s0, 99 # Maximum size of string
-	
+main:
 	li $v0, 4
 	la $a0, message1
 	syscall
-read:
-	add $t1, $a0, $t0 # $t1 = $a0 + $t0 = address(string[i])
-	li $v0, 12 # read character
-	syscall
-	sb $v0, 0($t1)
-	beq $v0, '\n', end_of_string # Stop if '\n' is inputted
-	addi $t0, $t0, 1
-	beq $t0, $s0, end_of_string # Stop if maximum size is reached
-	j read
-end_of_string:
-	add $s1, $zero, $a0 # Move address of string to $s1 # $a0 will be used later on
 	
+	li $v0, 8		
+	la $a0, input		
+	li $a1, 256 # Only 256 chars/bytes allowed
+	syscall
+	
+	jal strlen # jal to strlen function, saves return address to $ra
+	
+	add $t1, $zero, $v0 # Copy some of our parameters for our reverse function
+	add $t2, $zero, $a0 # We need to save our input string to $t2, it gets
+	add $a0, $zero, $v0 # butchered by the syscall.
+	#li $v0, 1 # This prints the length that we found in 'strlen'
+	#syscall
+	
+reverse:
+	li $t0, 0 # Set t0 to zero to be sure
+	li $t3, 0 # and the same for t3
+	
+	reverse_loop:
+		add $t3, $t2, $t0 # $t2 is the base address for our 'input' array, add loop index
+		lb $t4, 0($t3) # load a byte at a time according to counter
+		beqz $t4, exit # We found the null-byte
+		sb $t4, output($t1) # Overwrite this byte address in memory	
+		subi $t1, $t1, 1 # (j--)
+		addi $t0, $t0, 1 # (i++)
+		j reverse_loop
+
+# strlen:
+# a0 is our input string
+# v0 returns the length
+# -- This function loops over the character array until it encounters
+# the null byte, interestingly, the 0x0a character is stored by default
+# for input strings requested through the syscall. So we just subtract one
+# from the end result.
+
+strlen:
+	li $t0, 0
+	li $t2, 0
+	strlen_loop:
+		add $t2, $a0, $t0
+		lb $t1, 0($t2)
+		beqz $t1, strlen_exit
+		addiu $t0, $t0, 1
+		j strlen_loop
+		
+	strlen_exit:
+		subi $t0, $t0, 1
+		add $v0, $zero, $t0
+		add $t0, $zero, $zero
+		jr $ra
+
+exit:
 	li $v0, 4
 	la $a0, message2
 	syscall
-reverse_string:
-	subi $t0, $t0, 1
-	bltz $t0, endMain
-	add $t1, $s1, $t0 # $t1 = $s1 + $t0 = address(string[i])
-	li $v0, 11
-	lb $a0, 0($t1) # Load string[i]
-	syscall # Print string[i]
-	j reverse_string
-endMain:
-	li $v0, 10 #exit
- 	syscall
+	
+	li $v0, 4 # Print result
+	la $a0, output		
+	syscall
+		
+	li $v0, 10			
+	syscall
