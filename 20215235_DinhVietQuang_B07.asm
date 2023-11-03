@@ -1,18 +1,21 @@
-# print the minimum positive element in array
+# print sum of negative and positive element in array
 .data
 	A: .space 100
 	Aend: .word 
 	Message1: .asciiz "Enter array size: "
 	Message2: .asciiz "Enter the element: " 
-	res: .asciiz "Minimum positive element: "
+	res1: .asciiz "Sum of positive element: "
+	res2: .asciiz "Sum of negative element: "
 	ms: .asciiz " "
 	line: .asciiz "\n"
+
 .text
 main: 	
-	li $s1, 999999 # minValue
+	li $s0, 0 # sumPos
+	li $s1, 0 # sumNega
 	la $a3, A # address of A
  	j insert
- 	
+
 insert: 
 	li $v0, 4 
 	la $a0, Message1
@@ -77,25 +80,35 @@ countInit:
 loop:
 	bge $s5, $s4, printResult# stop after last elem is printed
 	lw $s7, A($s6) # next value from the list (A[i])
+	bgtz $s7, posSum
+	bltz $s7, negaSum
 	
-	bgtz $s7, checkPositive #check if A[i] > 0
-	addi $s5, $s5, 1 # increment the loop counter
-	addi $s6, $s6, 4 # step to the next array element
-	j loop
-	checkPositive:
-		blt $s7, $s1, checkMinPos #check if A[i] < current min value
+	posSum:
+		add $s0, $s0, $s7
 		addi $s5, $s5, 1 # increment the loop counter
 		addi $s6, $s6, 4 # step to the next array element
 		j loop
-		checkMinPos: 
-			move $s1, $s7 # update min Value
-			addi $s5, $s5, 1 # increment the loop counter
-			addi $s6, $s6, 4 # step to the next array element
-			j loop
-	
+		
+	negaSum:
+		add $s1, $s1, $s7
+		addi $s5, $s5, 1 # increment the loop counter
+		addi $s6, $s6, 4 # step to the next array element
+		j loop
 printResult:
 	li $a0, 4
-	la $a0, res
+	la $a0, res1
+	syscall
+	
+	li $v0, 1
+	move $a0, $s0
+	syscall
+	
+	li $v0, 4
+	la $a0, line
+	syscall
+	
+	li $a0, 4
+	la $a0, res2
 	syscall
 	
 	li $v0, 1
