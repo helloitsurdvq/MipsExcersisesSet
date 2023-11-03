@@ -17,7 +17,7 @@ main:
  	j insert
 insert:
 	li $v0, 4
-	la $a0, Message2
+	la $a0, Message1
 	syscall
 	
 	li $v0, 5
