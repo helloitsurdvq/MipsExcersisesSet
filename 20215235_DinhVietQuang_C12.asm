@@ -19,7 +19,7 @@ main:
 	beq $t0, $s0, end_of_string # Stop if maximum size is reached
 	j main
 end_of_string:
-	#add $s1, $zero, $a0 # Move address of string to $s1 # $a0 will be used in reverse_string
+	#add $s1, $zero, $a0 # Move address of string to $s1 # $a0 will be used in loop branch
 	li $v0, 4
 	la $a0, message # Print "\nReversed:\n"
 	syscall	
