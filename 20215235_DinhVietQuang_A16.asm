@@ -43,14 +43,14 @@ printInvalid:
 	j endMain
 	
 findGCD:
-	beqz $t1, findLCD
+	beqz $t1, findLCM
 	move $t3, $t1 # temp = $t3
 	rem $t4, $t0, $t1 # b = a % b;
 	move $t1, $t4 
 	move $t0, $t3 # a = temp;
 	j findGCD
 
-findLCD:
+findLCM:
 	move $t2, $t0 # assign a = GCD after loop
 	div $t5, $t6, $t2 # $t5 = LCM = (M * N) / GCD
 
