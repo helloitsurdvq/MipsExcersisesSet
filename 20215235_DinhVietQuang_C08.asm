@@ -1,8 +1,7 @@
-# Enter the character string and character C from the keyboard. Prints the number of times the character C appears in the string
 .data
 	s: .space 20
-	inputMessage: .asciiz "Enter string: "
-	inputCharMessage: .asciiz "Enter char: "
+	inputMessage: .asciiz "Input string: "
+	inputCharMessage: .asciiz "Input char: "
 	outputMessage: .asciiz "\nResult: "
 .text
 # $s0, $s1: i, j of loop
@@ -33,26 +32,37 @@ end_of_string:
 	syscall
 	
 	add $t2, $v0, $zero # $t2 = char c
-	addi $t6, $t2, 32 # if $t2 is upper 
-	addi $t7, $t2, 32 # if $t2 is lower
+	slti $t4, $t2, 91
+	sgtu $t5, $t2, 64
+	and $t4, $t4, $t5
+	bne $t4, $zero, upper
+	add $t2, $t2, -32
+upper:
 	li $t3, 0 # $t3: counter
 	
 	li $s0, 0
 count_c:
-	beq $s0, $t0, end_main
+	beq $s0, $t0, after_count_c
 	add $t4, $t1, $s0 # $t4 = addr(s[i])
 	lb $t5, ($t4)
-	#bne $t5, $t2, not_equal_c
-	sne $s1, $t5, $t2
-	sne $s2, $t5, $t6
-	sne $s3, $t5, $t7
-	and $s4, $s1, $s2
-	and $s5, $s3, $s4
-	bnez $s5, not_equal_c
+	bne $t5, $t2, not_equal_c
 	add $t3, $t3, 1
 not_equal_c:
 	addi $s0, $s0, 1
 	j count_c
+	
+after_count_c:
+	add $t2, $t2, 32 # now check lower c
+	li $s0, 0
+count_cc:
+	beq $s0, $t0, end_main
+	add $t4, $t1, $s0 # $t4 = addr(s[i])
+	lb $t5, ($t4)
+	bne $t5, $t2, not_equal_cc
+	add $t3, $t3, 1
+not_equal_cc:
+	addi $s0, $s0, 1
+	j count_cc
 
 end_main:
 	li $v0, 4
